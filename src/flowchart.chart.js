@@ -2,6 +2,7 @@ var Raphael = require('raphael');
 var defaults = require('./flowchart.helpers').defaults;
 var defaultOptions = require('./flowchart.defaults');
 var Condition = require('./flowchart.symbol.condition');
+var Parallel = require('./flowchart.symbol.parallel');
 
 function FlowChart(container, options) {
   options = options || {};
@@ -32,7 +33,29 @@ FlowChart.prototype.handle = function(symbol) {
     };
     symbol.no = function(nextSymbol) {
       symbol.no_symbol = nextSymbol;
-      if(symbol.yes_symbol) {
+      if (symbol.yes_symbol) {
+        symbol.pathOk = true;
+      }
+      return flowChart.handle(nextSymbol);
+    };
+  } else if (symbol instanceof(Parallel)) {
+    symbol.path1 = function(nextSymbol) {
+      symbol.path1_symbol = nextSymbol;
+      if (symbol.path2_symbol) {
+        symbol.pathOk = true;
+      }
+      return flowChart.handle(nextSymbol);
+    };
+    symbol.path2 = function(nextSymbol) {
+      symbol.path2_symbol = nextSymbol;
+      if (symbol.path3_symbol) {
+        symbol.pathOk = true;
+      }
+      return flowChart.handle(nextSymbol);
+    };
+    symbol.path3 = function(nextSymbol) {
+      symbol.path3_symbol = nextSymbol;
+      if (symbol.path1_symbol) {
         symbol.pathOk = true;
       }
       return flowChart.handle(nextSymbol);
@@ -55,15 +78,15 @@ FlowChart.prototype.startWith = function(symbol) {
 
 FlowChart.prototype.render = function() {
   var maxWidth = 0,
-      maxHeight = 0,
-      i = 0,
-      len = 0,
-      maxX = 0,
-      maxY = 0,
-      minX = 0,
-      minY = 0,
-      symbol,
-      line;
+    maxHeight = 0,
+    i = 0,
+    len = 0,
+    maxX = 0,
+    maxY = 0,
+    minX = 0,
+    minY = 0,
+    symbol,
+    line;
 
   for (i = 0, len = this.symbols.length; i < len; i++) {
     symbol = this.symbols[i];
@@ -94,10 +117,13 @@ FlowChart.prototype.render = function() {
 
   maxX = this.maxXFromLine;
 
+  var x;
+  var y;
+
   for (i = 0, len = this.symbols.length; i < len; i++) {
     symbol = this.symbols[i];
-    var x = symbol.getX() + symbol.width;
-    var y = symbol.getY() + symbol.height;
+    x = symbol.getX() + symbol.width;
+    y = symbol.getY() + symbol.height;
     if (x > maxX) {
       maxX = x;
     }
@@ -108,8 +134,8 @@ FlowChart.prototype.render = function() {
 
   for (i = 0, len = this.lines.length; i < len; i++) {
     line = this.lines[i].getBBox();
-    var x = line.x;
-    var y = line.y;
+    x = line.x;
+    y = line.y;
     var x2 = line.x2;
     var y2 = line.y2;
     if (x < minX) {
@@ -128,6 +154,8 @@ FlowChart.prototype.render = function() {
 
   var scale = this.options['scale'];
   var lineWidth = this.options['line-width'];
+
+  if (this.minXFromSymbols < minX) minX = this.minXFromSymbols;
 
   if (minX < 0) minX -= lineWidth;
   if (minY < 0) minY -= lineWidth;

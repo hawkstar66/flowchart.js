@@ -24,8 +24,9 @@ module.exports = {
     'condition': {},
     'inputoutput': {},
     'operation': {},
-    'subroutine': {}
-  }//,
+    'subroutine': {},
+    'parallel': {}
+  } //,
   // 'flowstate' : {
   //   'past' : { 'fill': '#CCCCCC', 'font-size': 12},
   //   'current' : {'fill': 'yellow', 'font-color': 'red', 'font-weight': 'bold'},
