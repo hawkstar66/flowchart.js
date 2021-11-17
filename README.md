@@ -4,8 +4,8 @@
 
 flowchart.js is a flowchart DSL and SVG render that runs in the browser and [terminal](https://github.com/francoislaberge/diagrams/#flowchart).
 
-Nodes and connections are defined in separately so that nodes can be reused and connections can be quickly changed.
-Fine grain changes to node and connector style can also be made right in the DSL.
+Nodes and connections are defined separately so that nodes can be reused and connections can be quickly changed.
+Fine grain changes to node and connection style can also be made right in the DSL.
 
 ## Example
 
@@ -35,7 +35,7 @@ See [francoislaberge/diagrams](https://github.com/francoislaberge/diagrams/#flow
 
 flowchart.js is on [CDNJS](https://cdnjs.com/libraries/flowchart), feel free to use it.
 
-You will also need [Raphaël](http://www.raphaeljs.com/), which is also on [CDNJS](http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js).
+You will also need [Raphaël](http://www.raphaeljs.com/), which is also on [CDNJS](https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js).
 
 The demo html page is at [example/index.html](example/index.html).
 
@@ -105,7 +105,7 @@ sub1=>subroutine: subroutine
 ```
 
 ### condition
-Allows for a conditional or logical statement to direct the flow into one of two or more paths.
+Allows for a conditional or logical statement to direct the flow into one of two paths.
 
 ![condition image](imgs/condition.png "condition image")
 
@@ -136,12 +136,12 @@ nodeVar2->nodeVar3
 
 Connection syntax is as follows:
 
-`<node variable name>[(<specificaion1>[, <specification2])]-><node variable name>[[(<specificaion1>[, <specification2])]-><node variable name>]`
+`<node variable name>[(<specification1>[, <specification2])]-><node variable name>[[(<specification1>[, <specification2])]-><node variable name>]`
 
 Items in `[]` are optional.
 
 ### Directions
-The following directions are availiable and define the direction the connection will leave the node from. If there are more than one specifiers, it is always the last. All nodes have a default direction making this an optional specification. `<direction>` will be used to indicate that one of the below should be used in its place.
+The following directions are available and define the direction the connection will leave the node from. If there are more than one specifiers, it is always the last. All nodes have a default direction making this an optional specification. `<direction>` will be used to indicate that one of the following should be used in its place.
 
 * left
 * right
@@ -154,7 +154,7 @@ Each node variables has optional specifiers, like direction, and some have speci
 ### start
 Optional direction
 
-`startVar(<dirction>)->nextNode`
+`startVar(<direction>)->nextNode`
 
 ### end
 No specifications because connections only go to the end node and do not leave from it.
@@ -218,6 +218,33 @@ If you want to emphasize a specific path in your flowchart, you can additionally
 st@>op1({"stroke":"Red"})@>cond({"stroke":"Red","stroke-width":6,"arrow-end":"classic-wide-long"})@>c2({"stroke":"Red"})@>op2({"stroke":"Red"})@>e({"stroke":"Red"})
 ```
 
+## Custom names for branches
+
+```
+st=>start: Start:>http://www.google.com[blank]
+e=>end:>http://www.google.com
+op1=>operation: My Operation
+sub1=>subroutine: My Subroutine
+cond=>condition: linear or polynomial :>http://www.google.com
+io=>inputoutput: catch something...
+para=>parallel: 3 possibilities
+
+st->op1->cond
+cond(true@linear)->io->e
+cond(false@polynomial)->sub1(right)
+sub1(right)->para
+para(path1@an1, top)->cond
+para(path2@an2, right)->op1
+para(path3@an3, bottom)->e
+```
+<details>
+  
+  <summary>Demonstration</summary>
+  
+ ![img](https://user-images.githubusercontent.com/1086194/137810516-0d7d7307-fc55-466f-b06d-a6ca9f6b8785.png)
+ 
+</details>
+
 ## Contributors
 
 via [GitHub](https://github.com/adrai/flowchart.js/graphs/contributors)
@@ -228,7 +255,7 @@ Many thanks to [js-sequence-diagrams](http://bramp.github.io/js-sequence-diagram
 
 ## Licence
 
-Copyright (c) 2019 Adriano Raiano
+Copyright (c) 2021 Adriano Raiano
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -237,7 +264,7 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
+The preceding copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR

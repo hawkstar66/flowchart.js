@@ -119,6 +119,9 @@ function parse(input) {
     },
     clean: function() {
       this.diagram.clean();
+    },
+    options: function() {
+      return this.diagram.options;
     }
   };
 
@@ -188,6 +191,15 @@ function parse(input) {
       }
     }
     return next;
+  }
+  
+  function getAnnotation(s) {
+	var startIndex = s.indexOf("(") + 1, endIndex = s.indexOf(")");
+	var tmp = s.substring(startIndex, endIndex);
+	if(tmp.indexOf(",") > 0) { tmp = tmp.substring(0, tmp.indexOf(",")); }
+	var tmp_split = tmp.split("@");
+	if(tmp_split.length > 1)
+		return startIndex >= 0 && endIndex >= 0 ? tmp_split[1] : "";
   }
 
   while (lines.length > 0) {
@@ -274,6 +286,10 @@ function parse(input) {
       chart.symbols[symbol.key] = symbol;
 
     } else if (line.indexOf('->') >= 0) {
+      var ann = getAnnotation(line);
+      if (ann) {
+        line = line.replace('@' + ann, ''); 
+      }
       // flow
       var flowSymbols = line.split('->');
       for (var iS = 0, lenS = flowSymbols.length; iS < lenS; iS++) {
@@ -285,15 +301,34 @@ function parse(input) {
           flowSymb = flowSymb.replace('true', 'yes');
           flowSymb = flowSymb.replace('false', 'no');
         }
-
-        var realSymb = getSymbol(flowSymb);
+        
         var next = getNextPath(flowSymb);
+        var realSymb = getSymbol(flowSymb);
 
         var direction = null;
         if (next.indexOf(',') >= 0) {
           var condOpt = next.split(',');
           next = condOpt[0];
           direction = condOpt[1].trim();
+        }
+
+        if (ann) {
+          if (realSymb.symbolType === 'condition') {
+            if (next === "yes" || next === "true") {
+              realSymb.yes_annotation = ann;
+            } else {
+              realSymb.no_annotation = ann;
+            }
+          } else if (realSymb.symbolType === 'parallel') {
+            if (next === 'path1') {
+              realSymb.path1_annotation = ann;
+            } else if (next === 'path2') {
+              realSymb.path2_annotation = ann;
+            } else if (next === 'path3') {
+              realSymb.path3_annotation = ann;
+            }
+          }
+          ann = null;
         }
 
         if (!chart.start) {
@@ -311,12 +346,12 @@ function parse(input) {
 
       // line style
       var lineStyleSymbols = line.split('@>');
-      for (var iSS = 0, lenSS = lineStyleSymbols.length; iSS < lenSS; i++) {
-        if ((iSS + 1) != lenSS) {
+      for (var iSS = 0, lenSS = lineStyleSymbols.length; iSS < lenSS; iSS++) {
+        if ((iSS + 1) !== lenSS) {
           var curSymb = getSymbol(lineStyleSymbols[iSS]);
           var nextSymbol = getSymbol(lineStyleSymbols[iSS+1]);
 
-          curSymb['lineStyle'][nextSymbol.key] = JSON.parse(getStyle(lineStyleSymbols[i + 1]));
+          curSymb['lineStyle'][nextSymbol.key] = JSON.parse(getStyle(lineStyleSymbols[iSS + 1]));
         }
       }
     }
